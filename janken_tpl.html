@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<script src="js/jquery-2.1.3.min.js"></script>
+<link rel="stylesheet" href="css/sample.css">
+<title>じゃんけん</title>
+</head>
+<body>
+
+<header>
+  <h1>じゃんけん</h1>
+</header>
+
+<main>
+  <h3>ルール</h3>
+  <div>
+    ◎ じゃんけんの勝敗に応じて変化する戦闘力を競う。<br>
+    ◎ 最初の戦闘力は両者100点。
+    ◎ じゃんけんの勝者は、「出した手」と「計算方法」によって戦闘力が変化する。<br>
+    ◎「出した手」グー：３点（グリコ）、チョキ：６点（チョコレート）、パー：６点（パイナップル）<br>
+    ◎「計算方法」”足す” ”引く” ”掛ける” ”割る” からランダムに選択される。<br>
+    　（例）戦闘力100点 ”グー”　で勝ち、”掛ける”が選ばれた場合 → 100×3 = 300点<br>
+    　　　　　　　　　　 ”チョキ”で勝ち、”割る”が選ばれた場合 → 100÷6 = 17点（四捨五入）<br>
+  </div>
+
+  <hr>
+
+  <ul>
+    <li id="gu_btn">グー【グリコ】</li>
+    <li id="cho_btn">チョキ【チョコレート】</li>
+    <li id="par_btn">パー【パイナップル】</li>
+  </ul>
+  <div>コンピュータの出した手は？「<span id="pc_hands">なに？</span>」</div>
+  <div id="judgment">勝ち</div>
+  <hr>
+  <div>じゃんけんの回数：<span id="jk_count">0</span>回</div>
+  <div>勝った回数：<span id="win_count">0</span>回</div>
+  <div>負けた回数：<span id="lose_count">0</span>回</div>
+  <div>あいこ回数：<span id="aiko_count">0</span>回</div>
+  <hr>
+  <div>選ばれた計算方法は：【<span id="keisan">?</span>】</div>
+  <div>プレイヤーの戦闘力：<span id="PC_score">100</span></div>
+  <div>コンピュータの戦闘力：<span id="NPC_score">100</span></div>
+</main>
+
+<footer></footer>
+<script>
+//じゃんけん用のSCRIPTを書いてください
+
+const janken = ["グー","チョキ","パー"]; //じゃんけんのリスト作成
+let jankenPC = ["グー","チョキ","パー"]; //プレイヤーのじゃんけんの手を定義
+let jankenNPC = 0; //COMのじゃんけんの手を定義
+
+let jkCount = 0; //じゃんけん回数
+let winCount = 0; //勝った回数
+let loseCount = 0; //負けた回数
+let aikoCount = 0; //あいこの回数
+
+const ary = ["足す","引く","掛ける","割る"]; //計算方法のリスト
+let ary_n; //計算方法の計算用変数
+let scorePC = 100;
+let scoreNPC = 100;
+let scorePC_var = 0; //じゃんけんの手によるプレーヤーの変動値
+let scoreNPC_var = 0; //じゃんけんの手によるコンピュータの変動値
+
+// グーを選択した場合の処理
+$("#gu_btn").on("click",function(){
+  jankenPC = "グー";
+  jankenNPC = janken[Math.floor(Math.random()*3)]; //コンピュータの手を決定
+  $("#pc_hands").text(jankenNPC);
+  scorePC_var = 3; //グリコ
+  ary_n = ary[Math.floor(Math.random()*4)]; //計算方法を決定
+  $("#keisan").text(ary_n);
+  play(); //じゃんけん処理実行
+})
+
+// チョキを選択した場合の処理
+$("#cho_btn").on("click",function(){
+  jankenPC = "チョキ";
+  jankenNPC = janken[Math.floor(Math.random()*3)];
+  $("#pc_hands").text(jankenNPC);
+  scorePC_var = 6; //チョコレート
+  ary_n = ary[Math.floor(Math.random()*4)]; 
+  $("#keisan").text(ary_n);
+  play(); //じゃんけん処理実行
+})
+
+// パーを選択した場合の処理
+$("#par_btn").on("click",function(){
+  jankenPC = "パー";
+  jankenNPC = janken[Math.floor(Math.random()*3)];
+  $("#pc_hands").text(jankenNPC);
+  scorePC_var = 6; //パイナップル
+  ary_n = ary[Math.floor(Math.random()*4)]; 
+  $("#keisan").text(ary_n);
+  play(); //じゃんけん処理実行
+})
+
+// じゃんけん処理
+function play(jankenPON){
+  if (jankenPC === jankenNPC){ //あいこの時
+    $("#judgment").text("あいこ");
+    aikoCount ++;
+    $("#aiko_count").text(aikoCount);
+  } else if (jankenPC === "グー" && jankenNPC === "チョキ"){
+    $("#judgment").text("勝ち");
+    winCount ++;
+    $("#win_count").text(winCount);
+    calculationPC();
+  } else if (jankenPC === "チョキ" && jankenNPC === "パー"){
+    $("#judgment").text("勝ち");
+    winCount ++;
+    $("#win_count").text(winCount);
+    calculationPC();
+  } else if (jankenPC === "パー" && jankenNPC === "グー"){
+    $("#judgment").text("勝ち");
+    winCount ++;
+    $("#win_count").text(winCount);
+    calculationPC();
+  } else if (jankenPC === "グー" && jankenNPC === "パー"){
+    $("#judgment").text("負け");
+    loseCount ++;
+    scoreNPC_var = 6;
+    $("#lose_count").text(loseCount);
+    calculationNPC();
+  } else if (jankenPC === "チョキ" && jankenNPC === "グー"){
+    $("#judgment").text("負け");
+    loseCount ++;
+    scoreNPC_var = 3;
+    $("#lose_count").text(loseCount);
+    calculationNPC();
+  } else if (jankenPC === "パー" && jankenNPC === "チョキ"){
+    $("#judgment").text("負け");
+    loseCount ++;
+    scoreNPC_var = 6;
+    $("#lose_count").text(loseCount);
+    calculationNPC();
+  } 
+
+  jkCount ++;
+  $("#jk_count").text(jkCount);
+
+  console.log("自分" + jankenPC);
+  console.log("相手" + jankenNPC);
+
+}
+
+function calculationPC(){ //プレイヤー勝ち→プレイヤーの戦闘力のみ計算
+  switch(ary_n){
+    case "足す":
+      scorePC = scorePC + scorePC_var;
+    break;
+
+    case "引く":
+      scorePC = scorePC - scorePC_var;
+    break;
+
+    case "掛ける":
+      scorePC = scorePC * scorePC_var;
+    break;
+
+    case "割る":
+      scorePC = Math.round(scorePC / scorePC_var);
+    break;
+
+  }
+
+  $("#PC_score").text(scorePC);
+}
+
+function calculationNPC(){ //コンピュータ勝ち→NPCの戦闘力のみ計算
+  switch(ary_n){
+    case "足す":
+      scoreNPC = scoreNPC + scoreNPC_var;
+    break;
+
+    case "引く":
+      scoreNPC = scoreNPC - scoreNPC_var;
+    break;
+
+    case "掛ける":
+      scoreNPC = scoreNPC * scoreNPC_var;
+    break;
+
+    case "割る":
+      scoreNPC = Math.round(scoreNPC / scoreNPC_var);
+    break;
+
+  }
+
+  $("#NPC_score").text(scoreNPC);
+
+}
+    
+    
+    
+    
+    
+    
+    
+
+</script>
+</body>
+</html>
